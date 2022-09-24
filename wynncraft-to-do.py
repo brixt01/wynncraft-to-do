@@ -1,9 +1,10 @@
 #import libraries
 import requests
 import json
+import os
 
-#get the data
-username = "brixt01"
+# Get username and request data
+username = input("Enter a username, for a txt file of their user data to be created on your desktop: ")
 requestedData = requests.get('https://api.wynncraft.com/v2/player/'+username+'/stats/').json()
 
 # Set up dictionary
@@ -60,4 +61,19 @@ for item in requestedData["data"][0]["classes"]:
     data["characters"][currentIndex]["raids"] = item["raids"]["list"]
     data["characters"][currentIndex]["quests"] = item["quests"]["list"]
 
-print(json.dumps(data, indent=4))
+desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+try:
+    with open(desktop+"\\"+username+".txt", "x") as f:
+        f.write(str(json.dumps(data, indent=4)))
+    print(f"'{username}.txt' successfully created on the desktop.")
+except FileExistsError:
+    while True:
+        choice = input(f"The file '{username}.txt' already exists. Would you like to overwrite it? [y/n]: ")
+        if choice == "y":
+            with open(desktop+"\\"+username+".txt", "w") as f:
+                f.write(str(json.dumps(data, indent=4)))
+            print(f"'{username}.txt' successfully created on the desktop.")
+            break
+        elif choice == "n":
+            print(f"'{username}.txt' unsuccessfully created on the desktop.")
+            break
